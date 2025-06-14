@@ -14,7 +14,7 @@ def tokenize(example):
         example["text"],
         truncation=True,
         padding="max_length",
-        max_length=256
+        max_length=512
     )
 
 # STEP 1: LOAD / TOKENIZE DEV SET
@@ -45,31 +45,7 @@ else:
     dev_dataset = dev_dataset.rename_column("label", "labels")
     dev_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
     dev_dataset.save_to_disk(tokenized_dev_path)
-    print("✅ Dev dataset tokenized and saved.")
-
-# STEP 2: LOAD / TOKENIZE TRAIN SET
-# tokenized_train_path = "tokenized_train"
-# train_dataset = None
-
-# if os.path.exists(tokenized_train_path):
-#     print("🔁 Loading tokenized train dataset from disk...")
-#     train_dataset = load_from_disk(tokenized_train_path)
-# else:
-#     print("🚀 Loading and tokenizing training dataset...")
-#     train_dataset = load_dataset("ahmadreza13/human-vs-Ai-generated-dataset", split="train")
-
-#     def format_example(example):
-#         return {
-#             "text": example["data"],
-#             "label": 0 if example["generated"] else 1
-#         }
-
-#     train_dataset = train_dataset.map(format_example)
-#     train_dataset = train_dataset.map(tokenize, batched=True, num_proc=4)
-#     train_dataset = train_dataset.rename_column("label", "labels")
-#     train_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
-#     train_dataset.save_to_disk(tokenized_train_path)
-#     print("✅ Train dataset tokenized and saved.")
+    print("Dev dataset tokenized and saved.")
 
 train_dataset = load_from_disk(tokenized_train_path)
 
@@ -137,7 +113,7 @@ if checkpoints:
     print(f"🔁 Resuming from checkpoint: {latest_checkpoint}")
     trainer.train(resume_from_checkpoint=latest_checkpoint)
 else:
-    print("🚀 Starting training from scratch.")
+    print("Starting training from scratch.")
     trainer.train()
 
 
@@ -148,7 +124,7 @@ for k, v in metrics.items():
     print(f"{k}: {v:.4f}")
 
 # STEP 10: SAVE
-model = model.to("cpu")  # 🔧 Make sure all tensors are loaded and on CPU
+model = model.to("cpu")  # Make sure all tensors are loaded and on CPU
 model.save_pretrained("./my_model_lora_hc3")
 tokenizer.save_pretrained("./my_model_lora_hc3")
 print("Training complete. Model + tokenizer saved to './my_model_lora_hc3'.")

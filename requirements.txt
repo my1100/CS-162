@@ -3,3 +3,7 @@ datasets
 evaluate
 torch
 fsspec
+torch
+scikit-learn
+peft
+tqdm

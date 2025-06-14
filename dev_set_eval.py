@@ -8,7 +8,6 @@ from captum.attr import IntegratedGradients
 import matplotlib.pyplot as plt
 from datasets import Dataset
 import random
-
 from transformers import RobertaTokenizer, RobertaTokenizerFast, RobertaForSequenceClassification
 from peft import PeftModel
 
@@ -62,7 +61,8 @@ def evaluate_file(filepath):
     texts, labels = [], []
     filename = os.path.basename(filepath)
 
-    print(f"\n--- Loading {filename} ---")
+    print()
+    print(f"Loading {filename}")
     entries = load_entries(filepath)
     for obj in entries:
         if "human_text" in obj:
@@ -101,7 +101,7 @@ def evaluate_file(filepath):
     return report
 
 def evaluate_all(test_folder):
-    print("\n=== Evaluating Entire Dataset ===")
+    print("\nEvaluating Entire Dataset...")
     all_texts, all_labels = [], []
     test_files = [f for f in os.listdir(test_folder) if f.endswith((".jsonl", ".json"))]
 
@@ -139,12 +139,12 @@ def evaluate_all(test_folder):
     print(f"\nFinished entire dataset in {elapsed:.2f} seconds.")
 
     report = classification_report(all_labels, all_preds, digits=4, zero_division=1)
-    print("\n=== Classification Report for Entire Dataset ===")
+    print("\nClassification Report for Entire Dataset")
     print(report)
 
     # ROC-AUC Calculation
     print("\nPlotting ROC-AUC Curve...")
-    # Get prediction probabilities instead of hard predictions
+    # Get prediction probabilities
     all_probs = []
     for i in range(num_batches):
         start = i * batch_size
@@ -161,7 +161,7 @@ def evaluate_all(test_folder):
         inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             logits = model(**inputs).logits
-            probs = torch.softmax(logits, dim=-1)[:, 1]  # Get prob of class 1
+            probs = torch.softmax(logits, dim=-1)[:, 1]  # Get probability of class 1
             all_probs.extend(probs.cpu().numpy())
 
     # ROC Curve
@@ -202,11 +202,11 @@ def interpret_prediction(text, label=1, target_class=None):
 
     model.eval()
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=256)
-    input_ids = inputs["input_ids"].to(device).long()  # ensure it's LongTensor
+    input_ids = inputs["input_ids"].to(device).long()  # Ensure it's LongTensor
     attention_mask = inputs["attention_mask"].to(device)
 
     def forward_func(input_ids):
-        input_ids = input_ids.long()  # make sure input is long inside forward
+        input_ids = input_ids.long()  # Make sure input is long inside forward
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
         return torch.softmax(outputs.logits, dim=-1)[:, target_class]
 
@@ -236,7 +236,6 @@ def interpret_prediction(text, label=1, target_class=None):
         print(f"{token:<12} {score:.4f}")
 
 
-
 # # 1. Evaluate on all dev datasets
 # test_folder = "../dev-data"
 # evaluate_all(test_folder)
@@ -249,7 +248,7 @@ def interpret_prediction(text, label=1, target_class=None):
 #     report = evaluate_file(path)
 #     if report is None:
 #         continue
-#     print(f"\n=== Classification Report for {filename} ===")
+#     print(f"\nClassification Report for {filename}")
 #     print(report)
 
 # 3. Pick correct and wrong examples from dev dataset
@@ -267,7 +266,6 @@ for filename in os.listdir(dev_folder):
                     dev_entries.append({"text": data["machine_text"].strip(), "labels": 0})
 
 dev_dataset = Dataset.from_list(dev_entries)
-
 
 correct_preds = []
 wrong_preds = []
@@ -304,7 +302,7 @@ for ex in random.sample(wrong_preds, 3):
     print(f"Prediction: {ex['pred']} | True: {ex['true']} | Confidence: {ex['confidence']:.4f}")
 
 
-# # 4. Interpret on individual new examples
+# 4. Interpret on individual new examples
 print("\nRunning interpretation on example 1...(source: r/ucla)")
 sample_text = "Ever since I brought my gaming laptop to school, my grades have gotten better. This is undeniable proof that playing video games is a vital contributor to your academic success. So yes, me playing RDR2 for 6 hours last night does count as studying, thus making me a major academic weapon"
 get_prediction(sample_text)

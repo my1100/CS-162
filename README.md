@@ -26,6 +26,8 @@ This project detects AI-generated text using both a traditional Support Vector M
 - SVM: linear kernel, feature-based baseline
 - RoBERTa + LoRA: encoder-only transformer with LoRA adapters
 
+---
+
 ## Test the Model
 
 To run the model, clone the git repository into a GCP VM and open up the terminal in the folder.

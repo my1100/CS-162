@@ -31,26 +31,26 @@ train_dataset = Dataset.from_list(flattened_data)
 # Check if partial tokenized dataset exists
 if os.path.exists(tokenized_train_path):
     try:
-        print("🔁 Attempting to load partial tokenized data...")
+        print("Attempting to load partial tokenized data")
         tokenized_existing = load_from_disk(tokenized_train_path)
         processed_ids = set(tokenized_existing["input_ids"])
-        print(f"✅ Loaded {len(tokenized_existing)} already-tokenized samples.")
+        print(f"Loaded {len(tokenized_existing)} already-tokenized samples.")
     except Exception as e:
-        print(f"⚠️ Partial load failed: {e}")
+        print(f"Partial load failed: {e}")
         tokenized_existing = None
         processed_ids = set()
 else:
     tokenized_existing = None
     processed_ids = set()
 
-# Filter out already-tokenized entries
+# Filter pre-tokenized entries
 if processed_ids:
     print("Filtering already tokenized entries...")
     train_dataset = train_dataset.filter(lambda x: tokenizer(x["text"])["input_ids"] not in processed_ids)
 
-# Tokenize remaining data
+# Tokenize data
 if len(train_dataset) > 0:
-    print(f"⚙️ Tokenizing remaining {len(train_dataset)} samples...")
+    print(f"Tokenizing remaining {len(train_dataset)} samples")
     train_dataset = train_dataset.map(tokenize, batched=True, num_proc=4)
     train_dataset = train_dataset.rename_column("label", "labels")
     train_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
@@ -59,7 +59,7 @@ if len(train_dataset) > 0:
     if tokenized_existing:
         train_dataset = concatenate_datasets([tokenized_existing, train_dataset])
 
-    print("💾 Saving tokenized training set to disk...")
+    print("Saving tokenized training set to disk")
     train_dataset.save_to_disk(tokenized_train_path)
 else:
-    print("✅ No new samples to tokenize.")
+    print("No new samples to tokenize")

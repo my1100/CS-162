@@ -3,8 +3,12 @@ datasets
 evaluate
 torch
 fsspec
-torch
 scikit-learn
 peft
 tqdm
 captum
+jsonlines
+matplotlib
+pandas
+numpy
+gitpython

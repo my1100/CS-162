@@ -6,7 +6,7 @@ import os
 import json
 from datasets import load_dataset, Dataset, load_from_disk
 from peft import LoraConfig, get_peft_model, TaskType
-
+from pathlib import Path
 
 tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 def tokenize(example):
@@ -17,7 +17,7 @@ def tokenize(example):
         max_length=512
     )
 
-# STEP 1: LOAD / TOKENIZE DEV SET
+# Load and tokenize datasets
 tokenized_train_path = "tokenized_train_hc3"
 tokenized_dev_path = "tokenized_dev"
 dev_dataset = None
@@ -28,7 +28,7 @@ if os.path.exists(tokenized_dev_path):
 else:
     print("Tokenizing dev dataset from scratch...")
     dev_entries = []
-    dev_folder = "/home/marie/dev-data"
+    dev_folder = "testing_data"
 
     for filename in os.listdir(dev_folder):
         if filename.endswith(".jsonl"):
@@ -49,16 +49,16 @@ else:
 
 train_dataset = load_from_disk(tokenized_train_path)
 
-# STEP 3: LOAD BASE MODEL
+# Load base model
 print("Loading base RoBERTa model...")
 base_model = RobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=2)
 
-# STEP 4: CONFIGURE LoRA
+# Configure LoRA
 print("Wrapping model with LoRA adapters...")
 lora_config = LoraConfig(
     r=8,
     lora_alpha=16,
-    target_modules=["query", "value"],  # Commonly targeted layers
+    target_modules=["query", "value"],
     lora_dropout=0.1,
     bias="none",
     task_type=TaskType.SEQ_CLS
@@ -66,7 +66,7 @@ lora_config = LoraConfig(
 
 model = get_peft_model(base_model, lora_config)
 
-# STEP 5: TRAINING ARGS
+# Instantiate training arguments
 output_dir = "./lora-roberta-checkpoints"
 training_args = TrainingArguments(
     output_dir=output_dir,
@@ -84,7 +84,7 @@ training_args = TrainingArguments(
     resume_from_checkpoint=True if os.path.exists(output_dir) else False
 )
 
-# STEP 6: METRICS
+# Define metrics to compute
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     preds = torch.argmax(torch.tensor(logits), axis=1)
@@ -93,7 +93,7 @@ def compute_metrics(eval_pred):
         "f1": f1_score(labels, preds)
     }
 
-# STEP 7: TRAINER
+# Instantiate trainer
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -102,11 +102,8 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-# STEP 8: TRAIN
-from pathlib import Path
-
+# Begin training model
 print("Starting (or resuming) training...")
-# Check if a checkpoint exists
 checkpoints = list(Path(output_dir).glob("checkpoint-*"))
 if checkpoints:
     latest_checkpoint = str(sorted(checkpoints, key=lambda x: int(x.name.split("-")[-1]))[-1])
@@ -117,13 +114,13 @@ else:
     trainer.train()
 
 
-# STEP 9: EVALUATE
+# Evaluate model
 print("Evaluating best model on dev set...")
 metrics = trainer.evaluate()
 for k, v in metrics.items():
     print(f"{k}: {v:.4f}")
 
-# STEP 10: SAVE
+# Save model
 model = model.to("cpu")  # Make sure all tensors are loaded and on CPU
 model.save_pretrained("./LoRA_model")
 tokenizer.save_pretrained("./LoRA_model")

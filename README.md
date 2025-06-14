@@ -42,10 +42,10 @@ pip install -r requirements.txt
 
 This will set up the environment.
 
-Then, to evaluate a specific .json or .jsonl file, run the following:
+Then, to evaluate a specific .json or .jsonl file, add it to the current folder and run the following:
 
 ```
-python grade_model.py --input [name of file to test] 
+python grade_model.py --input [path to file to test] 
 ```
 
 The output should display the precision, recall, f1-score, and accuracy of the model on the evaluation dataset.

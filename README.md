@@ -28,7 +28,7 @@ This project detects AI-generated text using both a traditional Support Vector M
 
 ## Test the Model
 
-To run the model, clone the git repository and open up a terminal in the folder.
+To run the model, clone the git repository into a GCP VM and open up the terminal in the folder.
 
 Then, run the following:
 
@@ -45,3 +45,5 @@ Then, to evaluate a specific .json or .jsonl file, run the following:
 ```
 python grade_model.py --input [name of file to test] 
 ```
+
+The output should display the precision, recall, f1-score, and accuracy of the model on the evaluation dataset.

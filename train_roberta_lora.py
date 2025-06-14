@@ -125,6 +125,6 @@ for k, v in metrics.items():
 
 # STEP 10: SAVE
 model = model.to("cpu")  # Make sure all tensors are loaded and on CPU
-model.save_pretrained("./my_model_lora_hc3")
-tokenizer.save_pretrained("./my_model_lora_hc3")
-print("Training complete. Model + tokenizer saved to './my_model_lora_hc3'.")
+model.save_pretrained("./LoRA_model")
+tokenizer.save_pretrained("./LoRA_model")
+print("Training complete. Model + tokenizer saved to './LoRA_model'.")

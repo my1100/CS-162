@@ -24,10 +24,10 @@ warnings.filterwarnings("ignore",
 
 # Load model and tokenizer
 print("Loading tokenizer and LoRA model...")
-tokenizer = RobertaTokenizer.from_pretrained("my_model_lora_hc3")
+tokenizer = RobertaTokenizer.from_pretrained("LoRA_model")
 base_model = RobertaForSequenceClassification.from_pretrained("roberta-base", 
                                                               num_labels=2)
-model = PeftModel.from_pretrained(base_model, "my_model_lora_hc3").to("cpu").eval()
+model = PeftModel.from_pretrained(base_model, "LoRA_model").to("cpu").eval()
 print("Model and tokenizer loaded.")
 
 # File reading utilities

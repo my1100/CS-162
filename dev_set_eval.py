@@ -13,7 +13,7 @@ from peft import PeftModel
 
 # Load tokenizer and base model
 base_model_path = "roberta-base"
-lora_model_path = "./my_model_lora_hc3"
+lora_model_path = "LoRA_model"
 
 tokenizer = RobertaTokenizer.from_pretrained(base_model_path)
 base_model = RobertaForSequenceClassification.from_pretrained(base_model_path, num_labels=2)

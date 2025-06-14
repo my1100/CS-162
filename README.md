@@ -25,3 +25,23 @@ This project detects AI-generated text using both a traditional Support Vector M
 
 - SVM: linear kernel, feature-based baseline
 - RoBERTa + LoRA: encoder-only transformer with LoRA adapters
+
+## Test the Model
+
+To run the model, clone the git repository and open up a terminal in the folder.
+
+Then, run the following:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+This will set up the environment.
+
+Then, to evaluate a specific .json or .jsonl file, run the following:
+
+```
+python grade_model.py --input [name of file to test] 
+```
